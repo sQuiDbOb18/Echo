@@ -1,0 +1,8 @@
+{
+  "EchoDemoModule#MockAAPL": "0x497B43FDe8439aE433FF469b27Ac62F26038CBAd",
+  "EchoDemoModule#MockNVDA": "0x331DF0BBc8e3a8797C025e1164907A45ea706248",
+  "EchoDemoModule#MockUSDC": "0x1a60DdaE583CF45036353E39b4A54F9479B171C4",
+  "EchoDemoModule#SimpleSwapPool": "0x8a0D69949c5C74c3add851FF13D4f79a1aa3617F",
+  "EchoDemoModule#ContrarianVault": "0x858939B658f2932e851A846b6cDC7fC85b2F3Cb1",
+  "EchoDemoModule#MomentumVault": "0xc6C798Fe3b8aac98cd3E36acD677b8f68d0262F9"
+}

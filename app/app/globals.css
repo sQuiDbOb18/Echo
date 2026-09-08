@@ -1,0 +1,9 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root { color-scheme: dark; }
+* { box-sizing: border-box; }
+body { margin: 0; background: #080b10; color: #f4f6f8; font-family: Georgia, "Times New Roman", serif; }
+button, input { font: inherit; }
+.font-sans { font-family: ui-sans-serif, system-ui, sans-serif; }
