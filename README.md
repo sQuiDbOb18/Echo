@@ -41,10 +41,10 @@ npm test
 npm run deploy:base-sepolia
 npm run agent:momentum
 npm run agent:contrarian
-cd app && npm run dev -- --hostname 0.0.0.0 --port 3001
+cd app && npm run dev -- --hostname 0.0.0.0 --port 3000
 ```
 
-Run the two agent commands in separate terminals. The frontend is available at `http://localhost:3001`.
+Run the two agent commands in separate terminals. The frontend is available at `http://localhost:3000`.
 
 ## Base Sepolia Deployment
 
