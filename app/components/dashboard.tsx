@@ -47,12 +47,14 @@ export function Dashboard() {
   const [mintState, setMintState] = useState("");
   const [feedState, setFeedState] = useState<"loading" | "ready" | "retrying" | "error">("loading");
   const [mounted, setMounted] = useState(false);
+  const [refreshNonce, setRefreshNonce] = useState(0);
   useEffect(() => setMounted(true), []);
   const ready = Boolean(contracts.momentum && contracts.contrarian && contracts.musdc);
-  const momentumNav = useReadContract({ address: contracts.momentum, abi: vaultAbi, functionName: "getNAV", chainId: baseSepolia.id, query: { enabled: Boolean(contracts.momentum) } });
-  const contrarianNav = useReadContract({ address: contracts.contrarian, abi: vaultAbi, functionName: "getNAV", chainId: baseSepolia.id, query: { enabled: Boolean(contracts.contrarian) } });
+  const liveReadOptions = { refetchInterval: 15_000, refetchOnWindowFocus: true, enabled: true };
+  const momentumNav = useReadContract({ address: contracts.momentum, abi: vaultAbi, functionName: "getNAV", chainId: baseSepolia.id, query: { ...liveReadOptions, enabled: Boolean(contracts.momentum) } });
+  const contrarianNav = useReadContract({ address: contracts.contrarian, abi: vaultAbi, functionName: "getNAV", chainId: baseSepolia.id, query: { ...liveReadOptions, enabled: Boolean(contracts.contrarian) } });
   const selectedVault = contracts[selectedAgent];
-  const userShares = useReadContract({ address: selectedVault, abi: vaultAbi, functionName: "shares", args: address ? [address] : undefined, chainId: baseSepolia.id, query: { enabled: Boolean(selectedVault && address) } });
+  const userShares = useReadContract({ address: selectedVault, abi: vaultAbi, functionName: "shares", args: address ? [address] : undefined, chainId: baseSepolia.id, query: { ...liveReadOptions, enabled: Boolean(selectedVault && address) } });
 
   useEffect(() => {
     if (!publicClient || !contracts.momentum || !contracts.contrarian) return;
@@ -90,7 +92,12 @@ export function Dashboard() {
     void loadTrades();
     const timer = setInterval(loadTrades, 15_000);
     return () => { active = false; clearInterval(timer); if (retryTimer) clearTimeout(retryTimer); };
-  }, [publicClient]);
+  }, [publicClient, refreshNonce]);
+
+  async function refreshAfterTransaction() {
+    await Promise.all([momentumNav.refetch(), contrarianNav.refetch(), userShares.refetch()]);
+    setRefreshNonce((value) => value + 1);
+  }
 
   async function deposit() {
     if (!walletClient || !publicClient || !address || !contracts.musdc || !selectedVault || !amount) return;
@@ -104,6 +111,7 @@ export function Dashboard() {
       await publicClient.waitForTransactionReceipt({ hash: depositTx });
       setDepositState("Deposit confirmed");
       setAmount("");
+      await refreshAfterTransaction();
     } catch (error) { setDepositState(error instanceof Error ? error.message.slice(0, 80) : "Transaction failed"); }
   }
 
@@ -114,6 +122,7 @@ export function Dashboard() {
       const hash = await walletClient.writeContract({ address: contracts.musdc, abi: erc20Abi, functionName: "mint", args: [address, parseUnits("1000", 6)] });
       await publicClient.waitForTransactionReceipt({ hash });
       setMintState("1,000 mUSDC minted");
+      await refreshAfterTransaction();
     } catch (error) {
       setMintState(error instanceof Error ? error.message.slice(0, 80) : "Mint failed");
     }
